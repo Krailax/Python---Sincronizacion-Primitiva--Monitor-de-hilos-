@@ -1,0 +1,506 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta description="Explicación sobre la Sincronizacion Primitas de hilo en tareas">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {% tailwind_css %}
+</head>
+
+<body class="flex flex-col h-full gap-4 p-4">
+    <header>
+        <h1 class="text-2xl font-semibold">Sincronización Primitiva</h1>
+    </header>
+    <main class="bg-slate-200/80 w-full h-full rounded-md p-4 text-gray-950">
+        <p class="hidden">Author : Velásquez Realpe Leif Wither</p>
+        <div class="flex flex-col gap-4">
+            <h2 class="text-lg font-semibold">Planteamiento del Problema</h2>
+            <p class="text-justify">
+                La profesora asigna a cuatro alumnos la tarea de leer un libro individualmente. Mientras los alumnos leen, la profesora supervisa su progreso. Una vez que todos los alumnos hayan completado la lectura, deben trabajar en conjunto para desarrollar una idea creativa. Cada alumno contribuirá con su parte para la realización de la idea, que puede ser la construcción de una maqueta, la elaboración de un dibujo o cualquier otro proyecto creativo. Durante todo el proceso, la profesora continúa supervisando y guiando a los alumnos según sea necesario. Una vez finalizado, los alumnos deben notificar a la profesora que han terminado.
+            </p>
+        </div>
+        <div class="flex flex-col justify-center items-center pt-4 gap-4">
+            <img src="{% static 'img/ICodigoMuestra2.webp' %}" alt="Leyendo 1"  width="900">
+            <img src="{% static 'img/ICodigoMuestra1.webp' %}" alt="Leyendo 1" width="900">
+        </div>
+        <div class="flex justify-center pt-8">
+            <hr class="border border-black/60 w-10/12">
+        </div>
+
+        <!--       Paso 1. Lectura de los alumnos     -->
+        <div class="flex flex-col gap-4 pt-4">
+            <h2 class="text-lg font-semibold">Paso para la resolución del problema {{numero}}</h2>
+            <div class="flex flex-row gap-4 items-center">
+                <p class="text-justify">Paso 1. Lectura de los alumnos</p>
+                <button id="startButton" class="p-2 px-4 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 hover:shadow-md" onclick="startProgressAll()">                    
+                    Iniciar
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row pt-1 gap-3 sm:gap-0">
+            <div class="flex flex-col gap-12 p-4 rounded-md border-4 border-black/80 w-full sm:w-4/12">
+                <div class="flex flex-row items-center gap-8">
+                    <img src="{% static 'img/INiño1.webp' %}" alt="Leyendo 1" width="80">
+                    <div>
+                        <p class="font-semibold">Barra de progreso <span id="progress1">0</span> / <span id="limite1">10</span></p>
+                    </div>
+                    <p id="status1" class="font-semibold">
+                        Sin Iniciar
+                    </p>
+                </div>
+        
+                <div class="flex flex-row items-center gap-8">
+                    <img src="{% static 'img/INiño2.webp' %}" alt="Leyendo 2" width="80">
+                    <div>
+                        <p class="font-semibold">Barra de progreso <span id="progress2">0</span> / <span id="limite2">17</span></p>
+                    </div>
+                    <p id="status2" class="font-semibold">
+                        Sin Iniciar
+                    </p>
+                </div>
+        
+                <div class="flex flex-row items-center gap-8">
+                    <img src="{% static 'img/INiño3.webp' %}" alt="Leyendo 3" width="80">
+                    <div>
+                        <p class="font-semibold">Barra de progreso <span id="progress3">0</span> / <span id="limite3">18</span></p>
+                    </div>
+                    <p id="status3" class="font-semibold">
+                        Sin Iniciar
+                    </p>
+                </div>
+        
+                <div class="flex flex-row items-center gap-8">
+                    <img src="{% static 'img/INiño4.webp' %}" alt="Leyendo 4" width="80">
+                    <div>
+                        <p class="font-semibold">Barra de progreso <span id="progress4">0</span> / <span id="limite4">15</span></p>
+                    </div>
+                    <p id="status4" class="font-semibold">
+                        Sin Iniciar
+                    </p>
+                </div>
+                <!-- Repite esta estructura para cada niño -->
+            </div>
+            <div class="flex flex-col justify-center items-center w-full sm:w-3/12">
+                <img src="{% static 'img/IFlecha.webp' %}" class="rotate-90 sm:rotate-0" alt="Flecha 1" width="80">
+            </div>
+            <div class="flex flex-col items-center justify-center gap-4">
+                <img src="{% static 'img/ICodigo1.webp' %}" alt="Codigo 1">
+                <img src="{% static 'img/ICodigo2.webp' %}" alt="Codigo 2">
+
+            </div>
+        </div>
+
+        <script>
+            function startProgressFunction(progressBar, statusText, limit) {
+                return function () {
+                    let progress = 0;
+        
+                    // Cambiar el estado del niño a "En progreso"
+                    statusText.textContent = "En progreso";
+        
+                    const interval = setInterval(function() {
+                        progress++;
+                        progressBar.textContent = progress;
+        
+                        if (progress >= limit) {
+                            // Cambiar el estado del niño a "Finalizado" cuando la carga está completa
+                            statusText.textContent = "Finalizado";
+                            clearInterval(interval);
+                        }
+                    }, 500); // Ajusta el tiempo de animación aquí (en milisegundos)
+                };
+            }
+        
+            function startProgressAll() {
+                // Oculta el botón "Iniciar Todos"
+                document.getElementById("startButton").style.display = "none";
+        
+                let finishedChildren = 0; // Contador para niños finalizados
+        
+                for (let childNumber = 1; childNumber <= 4; childNumber++) {
+                    const progressBar = document.getElementById(`progress${childNumber}`);
+                    const statusText = document.getElementById(`status${childNumber}`);
+                    const limit = parseInt(document.getElementById(`limite${childNumber}`).textContent);
+                    
+                    // Crea una función de progreso para el niño actual
+                    const progressFunction = startProgressFunction(progressBar, statusText, limit);
+                    
+                    // Inicia el progreso para el niño actual
+                    progressFunction();
+        
+                    // Observador de mutación para detectar cambios en el progreso del niño
+                    const observer = new MutationObserver(function(mutationsList, observer) {
+                        for (let mutation of mutationsList) {
+                            if (mutation.type === 'childList' && parseInt(progressBar.textContent) >= limit) {
+                                finishedChildren++;
+        
+                                // Si todos los niños han finalizado, muestra el botón "Crear"
+                                if (finishedChildren === 4) {
+                                    document.getElementById("CrearButton").style.display = "inline-block";
+                                }
+        
+                                // Desconecta el observador después de verificar el progreso del niño
+                                observer.disconnect();
+                            }
+                        }
+                    });
+        
+                    // Configura el observador para observar cambios en el nodo de la barra de progreso
+                    observer.observe(progressBar, { childList: true });
+                }
+            }
+        </script>
+        
+        
+        <!--       Paso 2. Crear la Idea    -->
+        <div class="flex flex-col gap-4 pt-8">
+            <div class="flex flex-row gap-4 items-center">
+                <p class="text-justify">Paso 2. Crear la Idea</p>
+                <button style="display: none;" id="CrearButton" class="p-2 px-4 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 hover:shadow-md" onclick="CrearProgressAll()">                    
+                    Iniciar
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row pt-1 gap-3 sm:gap-0">
+            <div class="flex flex-col items-center gap-12 p-4 rounded-md border-4 border-black/80 w-full sm:w-4/12">
+                <div class="flex flex-row items-center justify-center gap-8 h-full">
+                    <img src="{% static 'img/IIdea.webp' %}" alt="Leyendo 1" width="80">
+                    <div>
+                        <p class="font-semibold">Barra de progreso <span id="Crearprogress1">0</span> / <span id="Crearlimite1">100</span></p>
+                    </div>
+                    <p id="Crearstatus1" class="font-semibold">
+                        Sin Iniciar
+                    </p>
+                </div>
+        
+               
+                <!-- Repite esta estructura para cada niño -->
+            </div>
+            <div class="flex flex-col justify-center items-center w-full sm:w-3/12">
+                <img src="{% static 'img/IFlecha.webp' %}" class="rotate-90 sm:rotate-0" alt="Flecha 1" width="80">
+            </div>
+            <div class="flex flex-col items-center justify-center gap-4">
+                <img src="{% static 'img/ICodigo3.webp' %}" alt="Codigo 1">
+                <img src="{% static 'img/ICodigo4.webp' %}" alt="Codigo 2">
+
+            </div>
+        </div>
+
+        <script>
+            function CrearProgressFunction(progressBar, statusText, limit) {
+                return function () {
+                    let progress = 0;
+        
+                    // Cambiar el estado del niño a "En progreso"
+                    statusText.textContent = "En progreso";
+        
+                    const interval = setInterval(function() {
+                        progress++;
+                        progressBar.textContent = progress;
+        
+                        if (progress >= limit) {
+                            // Cambiar el estado del niño a "Finalizado" cuando la carga está completa
+                            statusText.textContent = "Finalizado";
+                            clearInterval(interval);
+                        }
+                    }, 100); // Ajusta el tiempo de animación aquí (en milisegundos)
+                };
+            }
+        
+            function CrearProgressAll() {
+                // Oculta el botón "Iniciar Todos"
+                document.getElementById("CrearButton").style.display = "none";
+        
+                let finishedChildren = 0; // Contador para niños finalizados
+        
+                for (let childNumber = 1; childNumber <= 1; childNumber++) {
+                    const progressBar = document.getElementById(`Crearprogress${childNumber}`);
+                    const statusText = document.getElementById(`Crearstatus${childNumber}`);
+                    const limit = parseInt(document.getElementById(`Crearlimite${childNumber}`).textContent);
+                    
+                    // Crea una función de progreso para el niño actual
+                    const progressFunction = CrearProgressFunction(progressBar, statusText, limit);
+                    
+                    // Inicia el progreso para el niño actual
+                    progressFunction();
+        
+                    // Observador de mutación para detectar cambios en el progreso del niño
+                    const observer = new MutationObserver(function(mutationsList, observer) {
+                        for (let mutation of mutationsList) {
+                            if (mutation.type === 'childList' && parseInt(progressBar.textContent) >= limit) {
+                                finishedChildren++;
+        
+                                // Si todos los niños han finalizado, muestra el botón "Crear"
+                                if (finishedChildren === 1) {
+                                    document.getElementById("ContruirButton").style.display = "inline-block";
+                                }
+        
+                                // Desconecta el observador después de verificar el progreso del niño
+                                observer.disconnect();
+                            }
+                        }
+                    });
+        
+                    // Configura el observador para observar cambios en el nodo de la barra de progreso
+                    observer.observe(progressBar, { childList: true });
+                }
+            }
+        </script>       
+        
+     <!--       Paso 3. Construir la Idea    -->
+        <div class="flex flex-col gap-4 pt-8">
+            <div class="flex flex-row gap-4 items-center">
+                <p class="text-justify">Paso 3. Construyendo la Idea</p>
+                <button style="display: none;" id="ContruirButton" class="p-2 px-4 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 hover:shadow-md" onclick="ContruirProgressAll()">                    
+                    Iniciar
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row pt-1 gap-3 sm:gap-0">
+            <div class="flex flex-row gap-12 p-4 rounded-md border-4 border-black/80 w-full sm:w-4/12">
+                <div class="flex flex-col gap-6">
+                    <div class="flex flex-col items-center gap-8">
+                        <img src="{% static 'img/INiño1.webp' %}" alt="Leyendo 1" width="80">
+                        <div>
+                            <p class="font-semibold">Barra de progreso <span id="Contruirprogress1">0</span> / <span id="Contruirlimite1">5</span></p>
+                        </div>
+                        <p id="Contruirstatus1" class="font-semibold">
+                            Sin Iniciar
+                        </p>
+                    </div>
+            
+                    <div class="flex flex-col items-center gap-8">
+                        <img src="{% static 'img/INiño2.webp' %}" alt="Leyendo 2" width="80">
+                        <div>
+                            <p class="font-semibold">Barra de progreso <span id="Contruirprogress2">0</span> / <span id="Contruirlimite2">15</span></p>
+                        </div>
+                        <p id="Contruirstatus2" class="font-semibold">
+                            Sin Iniciar
+                        </p>
+                    </div>
+            
+                    <div class="flex flex-col items-center gap-8">
+                        <img src="{% static 'img/INiño3.webp' %}" alt="Leyendo 3" width="80">
+                        <div>
+                            <p class="font-semibold">Barra de progreso <span id="Contruirprogress3">0</span> / <span id="Contruirlimite3">10</span></p>
+                        </div>
+                        <p id="Contruirstatus3" class="font-semibold">
+                            Sin Iniciar
+                        </p>
+                    </div>
+            
+                    <div class="flex flex-col items-center gap-8">
+                        <img src="{% static 'img/INiño4.webp' %}" alt="Leyendo 4" width="80">
+                        <div>
+                            <p class="font-semibold">Barra de progreso <span id="Contruirprogress4">0</span> / <span id="Contruirlimite4">10</span></p>
+                        </div>
+                        <p id="Contruirstatus4" class="font-semibold">
+                            Sin Iniciar
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-col justify-center items-center">
+                    <div class="flex flex-col items-center gap-8">
+                        <img src="{% static 'img/IConstruir.webp' %}" alt="Leyendo 5" width="80">
+                        <div>
+                            <p class="font-semibold">Barra de progreso <span id="Contruirprogress5">0</span> / <span id="Contruirlimite5">4</span></p>
+                        </div>
+                        <p id="Contruirstatus5" class="font-semibold">
+                            Sin Iniciar
+                        </p>
+                    </div>
+                </div>
+                <!-- Repite esta estructura para cada niño -->
+            </div>
+            <div class="flex flex-col justify-center items-center w-full sm:w-3/12">
+                <img src="{% static 'img/IFlecha.webp' %}" class="rotate-90 sm:rotate-0" alt="Flecha 1" width="80">
+            </div>
+            <div class="flex flex-col items-center justify-center gap-4">
+                <img src="{% static 'img/ICodigo5.webp' %}" alt="Codigo 5">
+                <img src="{% static 'img/ICodigo6.webp' %}" alt="Codigo 6">
+
+            </div>
+        </div>
+
+        <script>
+            // Declarar cont como variable global
+            var cont = 0;
+        
+            function ContruirProgressFunction(progressBar, statusText, limit, progressBarFinal) {
+                return function () {
+                    let progress = 0;
+        
+                    // Cambiar el estado del niño a "En progreso"
+                    statusText.textContent = "En progreso";
+        
+                    const interval = setInterval(function() {
+                        progress++;
+                        progressBar.textContent = progress;
+        
+                        if (progress >= limit) {
+                            // Incrementar cont globalmente
+                            cont++;
+                            progressBarFinal.textContent = cont;
+        
+                            statusText.textContent = "Finalizado";
+                            clearInterval(interval);
+                        }
+                    }, 500); // Ajusta el tiempo de animación aquí (en milisegundos)
+                };
+            }
+        
+            function ContruirProgressAll() {
+                // Oculta el botón "Iniciar Todos"
+                document.getElementById("ContruirButton").style.display = "none";
+                let finishedChildren = 0; // Contador para niños finalizados
+        
+                const statusTextFinal = document.getElementById(`Contruirstatus5`);
+                statusTextFinal.textContent = "En progreso";
+        
+                const progressBarFinal = document.getElementById(`Contruirprogress5`);
+        
+                for (let childNumber = 1; childNumber <= 4; childNumber++) {
+                    const progressBar = document.getElementById(`Contruirprogress${childNumber}`);
+                    const statusText = document.getElementById(`Contruirstatus${childNumber}`);
+                    const limit = parseInt(document.getElementById(`Contruirlimite${childNumber}`).textContent);
+                    
+                    // Crea una función de progreso para el niño actual
+                    const progressFunction = ContruirProgressFunction(progressBar, statusText, limit, progressBarFinal);
+                    
+                    // Inicia el progreso para el niño actual
+                    progressFunction();
+        
+                    // Observador de mutación para detectar cambios en el progreso del niño
+                    const observer = new MutationObserver(function(mutationsList, observer) {
+                        for (let mutation of mutationsList) {
+        
+                            if (mutation.type === 'childList' && parseInt(progressBar.textContent) >= limit) {
+                                finishedChildren++;
+        
+                                // Si todos los niños han finalizado, muestra el botón "Crear"
+                                if (finishedChildren === 4) {
+                                    document.getElementById("NotificarButton").style.display = "inline-block";
+                                    statusTextFinal.textContent = "Finalizado";
+                                }
+        
+                                // Desconecta el observador después de verificar el progreso del niño
+                                observer.disconnect();
+                            }
+                        }
+                    });
+        
+                    // Configura el observador para observar cambios en el nodo de la barra de progreso
+                    observer.observe(progressBar, { childList: true });
+                }
+            }
+        </script>
+
+
+    <!--   Paso 4. Notificando a la profe   -->
+        <div class="flex flex-col gap-4 pt-8">
+            <div class="flex flex-row gap-4 items-center">
+                <p class="text-justify">Paso 4. Notificando a la Profe</p>
+                <button style="display: none;" id="NotificarButton" class="p-2 px-4 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 hover:shadow-md" onclick="NotificarProgressAll()">                    
+                    Iniciar
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row pt-1 gap-3 sm:gap-0">
+            <div class="flex flex-col gap-12 p-4 rounded-md border-4 border-black/80 w-full sm:w-5/12">
+                <div class="flex flex-row h-full items-center gap-8">
+                    <img src="{% static 'img/INotificar.webp' %}" alt="Leyendo 1" width="80">
+                    <div>
+                        <p class="font-semibold">Barra de progreso <span id="Notificarprogress1">0</span> / <span id="Notificarlimite1">1</span></p>
+                    </div>
+                    <p id="Notificarstatus1" class="font-semibold">
+                        Sin Iniciar
+                    </p>
+                </div>
+
+                <!-- Repite esta estructura para cada niño -->
+            </div>
+            <div class="flex flex-col justify-center items-center w-full sm:w-3/12">
+                <img src="{% static 'img/IFlecha.webp' %}" class="rotate-90 sm:rotate-0" alt="Flecha 1" width="80">
+            </div>
+            <div class="flex flex-col items-center justify-center gap-4">
+                <img src="{% static 'img/ICodigo7.webp' %}" alt="Codigo 7">
+                <img src="{% static 'img/ICodigo8.webp' %}" alt="Codigo 8">
+
+            </div>
+        </div>
+
+        <script>
+            function NotificarProgressFunction(progressBar, statusText, limit) {
+                return function () {
+                    let progress = 0;
+        
+                    // Cambiar el estado del niño a "En progreso"
+                    statusText.textContent = "En progreso";
+        
+                    const interval = setInterval(function() {
+                        progress++;
+                        progressBar.textContent = progress;
+        
+                        if (progress >= limit) {
+                            // Cambiar el estado del niño a "Finalizado" cuando la carga está completa
+                            statusText.textContent = "Finalizado";
+                            clearInterval(interval);
+                        }
+                    }, 200); // Ajusta el tiempo de animación aquí (en milisegundos)
+                };
+            }
+        
+            function NotificarProgressAll() {
+                // Oculta el botón "Iniciar Todos"
+                document.getElementById("NotificarButton").style.display = "none";
+        
+                let finishedChildren = 0; // Contador para niños finalizados
+        
+                for (let childNumber = 1; childNumber <= 1; childNumber++) {
+                    const progressBar = document.getElementById(`Notificarprogress${childNumber}`);
+                    const statusText = document.getElementById(`Notificarstatus${childNumber}`);
+                    const limit = parseInt(document.getElementById(`Notificarlimite${childNumber}`).textContent);
+                    
+                    // Crea una función de progreso para el niño actual
+                    const progressFunction = NotificarProgressFunction(progressBar, statusText, limit);
+                    
+                    // Inicia el progreso para el niño actual
+                    progressFunction();
+        
+                    // Observador de mutación para detectar cambios en el progreso del niño
+                    const observer = new MutationObserver(function(mutationsList, observer) {
+                        for (let mutation of mutationsList) {
+                            if (mutation.type === 'childList' && parseInt(progressBar.textContent) >= limit) {
+                                finishedChildren++;
+        
+                                // Si todos los niños han finalizado, muestra el botón "Crear"
+                                if (finishedChildren === 1) {
+                                    document.getElementById("startButton").style.display = "inline-block";
+                                    document.getElementById("startButton").style.display = "inline-block";
+
+                                }
+        
+                                // Desconecta el observador después de verificar el progreso del niño
+                                observer.disconnect();
+                            }
+                        }
+                    });
+        
+                    // Configura el observador para observar cambios en el nodo de la barra de progreso
+                    observer.observe(progressBar, { childList: true });
+                }
+            }
+        </script>       
+      
+
+
+    </main>
+</body>
+</html>
